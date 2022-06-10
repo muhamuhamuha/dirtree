@@ -2,6 +2,10 @@ import re
 from argparse import ArgumentParser
 from pathlib import Path
 
+from typing import NewType
+
+RegEx = NewType('RegEx', str)
+
 
 # prefix components:
 SPACE =  '    '
@@ -11,25 +15,26 @@ TEE =    '├── '
 LAST =   '└── '
 
 # exclude directories
-EXCEPT = (
+EXCLUDE = (
     '__pycache__'
     '|\.pytest_cache'
     '|.?venv'
     '|\.vscode'
-    '|\.git'
+    '|^\.git$'
     '|\.ipynb_checkpoints'
+    '|\.idea'
 ) 
 
 
 def tree(dir_path: Path,
-         excepts: 'regex' = EXCEPT,
+         exclude: RegEx = EXCLUDE,
          prefix: str = ''):
     """
     A recursive generator, given a directory Path object
     will yield a visual tree structure line by line
     with each line prefixed by the same characters
     """
-    contents = [p for p in dir_path.iterdir() if not re.match(excepts, p.name)]
+    contents = [p for p in dir_path.iterdir() if not re.match(exclude, p.name)]
 
     # contents each get pointers that are ├── with a final └── :
     pointers = [TEE] * (len(contents) - 1) + [LAST]
@@ -38,7 +43,7 @@ def tree(dir_path: Path,
         yield prefix + pointer + path.name
         
         # extend the prefix and recurse:
-        if path.is_dir() and not re.match(excepts, path.name):
+        if path.is_dir() and not re.match(exclude, path.name):
             extension = BRANCH if pointer == TEE else SPACE
             # i.e. SPACE because LAST, └── , above so no more |
             yield from tree(path, prefix=prefix + extension)
