@@ -3,7 +3,7 @@ import pytest
 from collections import defaultdict
 from pathlib import Path
 
-from tree import *
+from dirty import *
 
 
 @pytest.mark.parametrize(

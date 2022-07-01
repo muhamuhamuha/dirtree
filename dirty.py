@@ -2,7 +2,7 @@ import re
 from argparse import ArgumentParser
 from pathlib import Path
 
-from typing import NewType
+from typing import Iterator, NewType
 
 RegEx = NewType('RegEx', str)
 
@@ -23,12 +23,12 @@ EXCLUDE = (
     '|^\.git$'
     '|\.ipynb_checkpoints'
     '|\.idea'
-) 
+)
 
 
-def tree(dir_path: Path,
-         exclude: RegEx = EXCLUDE,
-         prefix: str = ''):
+def dirty(dir_path: Path,
+          exclude: RegEx = EXCLUDE,
+          prefix: str = '') -> Iterator:
     """
     A recursive generator, given a directory Path object
     will yield a visual tree structure line by line
@@ -41,7 +41,7 @@ def tree(dir_path: Path,
 
     for pointer, path in zip(pointers, contents):
         yield prefix + pointer + path.name
-        
+
         # extend the prefix and recurse:
         if path.is_dir() and not re.match(exclude, path.name):
             extension = BRANCH if pointer == TEE else SPACE
@@ -51,3 +51,4 @@ def tree(dir_path: Path,
 
 if __name__ == '__main__':
     pass
+
